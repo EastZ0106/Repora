@@ -1,0 +1,45 @@
+{
+  "name": "repora",
+  "version": "0.1.0",
+  "description": "A clean, intuitive Markdown editor for Windows",
+  "author": "Repora",
+  "main": "./out/main/index.js",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview",
+    "package": "electron-vite build && electron-builder --win",
+    "package:dir": "electron-vite build && electron-builder --win --dir",
+    "package:cn": "cross-env ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/ ELECTRON_BUILDER_BINARIES_MIRROR=https://npmmirror.com/mirrors/electron-builder-binaries/ electron-vite build && cross-env ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/ ELECTRON_BUILDER_BINARIES_MIRROR=https://npmmirror.com/mirrors/electron-builder-binaries/ electron-builder --win",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@codemirror/autocomplete": "^6.18.6",
+    "@codemirror/commands": "^6.8.1",
+    "@codemirror/lang-markdown": "^6.3.3",
+    "@codemirror/language": "^6.11.0",
+    "@codemirror/search": "^6.5.11",
+    "@codemirror/state": "^6.5.2",
+    "@codemirror/view": "^6.36.6",
+    "@lezer/common": "^1.2.3",
+    "@lezer/highlight": "^1.2.3",
+    "@lezer/markdown": "^1.3.3",
+    "@mdit/plugin-tasklist": "^0.14.0",
+    "@vscode/markdown-it-katex": "^1.1.1",
+    "chokidar": "^4.0.3",
+    "highlight.js": "^11.11.1",
+    "katex": "^0.16.23",
+    "markdown-it": "^14.1.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.27",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^4.4.1",
+    "electron": "^39.2.4",
+    "electron-builder": "^25.1.8",
+    "electron-vite": "^3.1.0",
+    "typescript": "^5.8.3"
+  }
+}

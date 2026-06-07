@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <rect width="256" height="256" rx="32" fill="#FAFAF0"/>
+  <rect x="48" y="60" width="160" height="136" rx="8" fill="#F5F0E8" stroke="#D4CFC5" stroke-width="3"/>
+  <text x="128" y="110" text-anchor="middle" font-family="Arial,sans-serif" font-size="56" font-weight="bold" fill="#5B8DEF">M</text>
+  <text x="128" y="160" text-anchor="middle" font-family="Arial,sans-serif" font-size="28" fill="#6B6560">Repora</text>
+</svg>
