@@ -53,6 +53,7 @@ export interface ReporaAPI {
   startWatching(dirPath: string): Promise<void>;
   stopWatching(): Promise<void>;
   openDroppedFile(filePath: string): Promise<{ content: string } | null>;
+  getPathForFile(file: File): string;
   onExternalChange(callback: (event: { filePath: string; event: string }) => void): () => void;
   onMenuAction(callback: (action: string) => void): () => void;
 }

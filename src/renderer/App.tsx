@@ -136,7 +136,7 @@ function AppContent() {
       onDrop={async (e) => {
         e.preventDefault(); e.stopPropagation(); setDropOver(false);
         for (const file of Array.from(e.dataTransfer?.files || [])) {
-          const fp = (file as any).path;
+          const fp = window.reporaAPI.getPathForFile(file);
           if (fp && isMarkdownFile(fp)) await openFileInTab(fp);
         }
       }}

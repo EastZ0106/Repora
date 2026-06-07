@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from 'electron';
+import { contextBridge, ipcRenderer, webUtils } from 'electron';
 
 const api = {
   openFile: () => ipcRenderer.invoke('dialog:openFile') as Promise<{ filePath: string; content: string } | null>,
@@ -17,6 +17,11 @@ const api = {
     ipcRenderer.invoke('file:stopWatching'),
   openDroppedFile: (filePath: string) =>
     ipcRenderer.invoke('file:openDropped', filePath) as Promise<{ content: string } | null>,
+
+  // Electron's contextIsolation strips File.path — use webUtils instead
+  getPathForFile: (file: File): string => {
+    try { return webUtils.getPathForFile(file); } catch { return ''; }
+  },
 
   onExternalChange: (callback: (event: { filePath: string; event: string }) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, data: { filePath: string; event: string }) => callback(data);
