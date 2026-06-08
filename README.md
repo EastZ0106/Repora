@@ -78,6 +78,121 @@ Click **Open Folder...** to browse a directory. The file tree sidebar shows all 
 
 Drag one or more `.md` / `.markdown` / `.txt` files from File Explorer into the Repora window to open them.
 
+## Architecture
+
+### Three-process model
+
+```
+Main Process (Node.js)
+  ├── Window management, native dialogs, file system
+  ├── chokidar file watching (external change detection)
+  ├── IPC handlers (ipcMain.handle)
+  └── Application menu
+       │
+       │ contextBridge (secure bridge)
+       │
+Preload Script (sandboxed)
+  └── window.reporaAPI = { openFile, saveFile, readFile, readDirectory, ... }
+       │
+       │ ipcRenderer.invoke
+       │
+Renderer Process (Chromium + React 18)
+  ├── Sidebar — file tree + folder browsing
+  ├── TabBar — multi-tab management
+  ├── EditorPane — textarea-based Markdown source editor
+  ├── PreviewPane — markdown-it + KaTeX live rendering
+  └── StatusBar — cursor position, save state, file info
+```
+
+### Data flow
+
+**Open file:**
+```
+Click sidebar file → OPEN_FILE → check if already open → readFile IPC → new Tab → set active → EditorPane loads content → PreviewPane renders
+```
+
+**Edit & preview:**
+```
+User types → textarea onChange → UPDATE_CONTENT reducer → PreviewPane re-renders → markdown-it.render() → dangerouslySetInnerHTML
+```
+
+**Save file:**
+```
+Ctrl+S → if no path, show save dialog → writeFile IPC → MARK_SAVED reducer → isDirty = false
+```
+
+**External change:**
+```
+chokidar detect → main sends 'file:externalChange' → if tab dirty: show banner (Reload / Keep mine); if clean: auto-reload
+```
+
+### State management
+
+Single React Context + `useReducer`. Key state shape:
+
+```typescript
+interface AppState {
+  openFolder: string | null;       // currently browsed folder
+  fileTree: TreeNode[];            // directory tree nodes
+  tabs: Tab[];                     // open file tabs
+  activeTabId: string | null;      // currently focused tab
+  sidebarVisible: boolean;         // sidebar toggle
+  previewVisible: boolean;         // preview pane toggle
+  cursorLine / cursorCol: number;  // editor cursor position
+}
+
+interface Tab {
+  id: string;
+  filePath: string | null;   // null = unsaved new file
+  title: string;
+  content: string;           // current text
+  savedContent: string;      // last saved snapshot
+  isDirty: boolean;          // content !== savedContent
+}
+```
+
+### IPC channels
+
+| Channel | Direction | Purpose |
+|---------|-----------|---------|
+| `dialog:openFile` | renderer→main | Native file open dialog |
+| `dialog:saveFile` | renderer→main | Native save / save-as dialog |
+| `dialog:openFolder` | renderer→main | Native folder picker |
+| `file:readFile` | renderer→main | Read file by path |
+| `file:writeFile` | renderer→main | Write file by path |
+| `file:readDirectory` | renderer→main | Scan directory tree |
+| `file:openDropped` | renderer→main | Read dropped file |
+| `file:startWatching` | renderer→main | Start chokidar watcher |
+| `file:externalChange` | main→renderer | Notify external file change |
+| `menu:*` | main→renderer | Menu action triggers |
+
+### UI layout
+
+```
+┌──────────────┬────────────────────────────────────────┐
+│ Sidebar      │ Tab Bar (36px, hidden when no tabs)     │
+│ 260px        ├──────────────┬──┬───────────────────────┤
+│ fixed width  │ Editor       │ │  Preview              │
+│              │ (textarea)   │ │  (markdown-it render)  │
+│              │ flex: 1      │ │  flex: 1               │
+│              ├──────────────┴──┴───────────────────────┤
+│              │ Status Bar (28px)                        │
+└──────────────┴─────────────────────────────────────────┘
+
+Sidebar hidden → display: none (flexbox, not grid)
+Preview hidden  → display: none on preview pane
+No tabs         → welcome overlay (absolute positioned, z-index: 100)
+```
+
+### Color scheme (beige/cream GitHub-style)
+
+```
+--bg-app:       #FAFAF0    --border-default:  #D4CFC5
+--bg-sidebar:   #F5F0E8    --text-primary:    #1E1E1E
+--bg-preview:   #FCFCF5    --text-secondary:  #6B6560
+--accent:       #5B8DEF    --font-mono:       Cascadia Code, Fira Code, Consolas
+```
+
 ## Development
 
 ### Prerequisites
