@@ -40,7 +40,8 @@ export async function readDirectoryTree(dirPath: string): Promise<TreeNode[]> {
         children
       });
     } else if (entry.isFile()) {
-      const ext = entry.name.slice(entry.name.lastIndexOf('.')).toLowerCase();
+      const dot = entry.name.lastIndexOf('.');
+      const ext = dot >= 0 ? entry.name.slice(dot).toLowerCase() : '';
       if (MARKDOWN_EXTS.has(ext) || ext === '') {
         nodes.push({
           name: entry.name,

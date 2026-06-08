@@ -1,6 +1,7 @@
 import { ipcMain, dialog, BrowserWindow } from 'electron';
 import { readFile, writeFile, readDirectoryTree } from './file-system';
 import { markRecentlySaved, startWatching, stopWatching } from './file-watcher';
+import { isPathInScope } from './index';
 
 export function registerIpcHandlers(): void {
   ipcMain.handle('dialog:openFile', async () => {
@@ -47,25 +48,31 @@ export function registerIpcHandlers(): void {
       properties: ['openDirectory']
     });
     if (result.canceled || result.filePaths.length === 0) return null;
+    const { setOpenFolderPath } = require('./index');
+    setOpenFolderPath(result.filePaths[0]);
     return { folderPath: result.filePaths[0] };
   });
 
   ipcMain.handle('file:readFile', async (_event, filePath: string) => {
+    if (!isPathInScope(filePath)) throw new Error('Path not in open folder scope');
     const content = await readFile(filePath);
     return { content };
   });
 
   ipcMain.handle('file:writeFile', async (_event, filePath: string, content: string) => {
+    if (!isPathInScope(filePath)) throw new Error('Path not in open folder scope');
     await writeFile(filePath, content);
     markRecentlySaved(filePath);
     return { success: true };
   });
 
   ipcMain.handle('file:readDirectory', async (_event, dirPath: string) => {
+    if (!isPathInScope(dirPath)) throw new Error('Path not in open folder scope');
     return readDirectoryTree(dirPath);
   });
 
   ipcMain.handle('file:startWatching', async (_event, dirPath: string) => {
+    if (!isPathInScope(dirPath)) throw new Error('Path not in open folder scope');
     const win = BrowserWindow.getFocusedWindow();
     if (win) startWatching(dirPath, win);
   });

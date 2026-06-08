@@ -68,10 +68,10 @@ function AppContent() {
   }, [activeTab, dispatch]);
 
   // Stable refs for menu & keyboard shortcuts
-  const h = useRef({ handleNewTab, handleOpenFile, handleOpenFolder, handleSave, handleSaveAs });
-  h.current = { handleNewTab, handleOpenFile, handleOpenFolder, handleSave, handleSaveAs };
+  const h = useRef({ handleNewTab, handleOpenFile, handleOpenFolder, handleSave, handleSaveAs, activeTab, stateTabs: state.tabs });
+  h.current = { handleNewTab, handleOpenFile, handleOpenFolder, handleSave, handleSaveAs, activeTab, stateTabs: state.tabs };
 
-  // Menu listener
+  // Menu listener — registered once, reads everything from ref
   useEffect(() => {
     const a = getAPI(); if (!a) return;
     return a.onMenuAction((action: string) => {
@@ -82,19 +82,19 @@ function AppContent() {
         case 'menu:save': h.current.handleSave(); break;
         case 'menu:saveAs': h.current.handleSaveAs(); break;
         case 'menu:closeTab':
-          if (activeTab) dispatch({ type: 'CLOSE_TAB', tabId: activeTab.id });
+          if (h.current.activeTab) dispatch({ type: 'CLOSE_TAB', tabId: h.current.activeTab.id });
           break;
         case 'menu:toggleSidebar': dispatch({ type: 'TOGGLE_SIDEBAR' }); break;
         case 'menu:togglePreview': dispatch({ type: 'TOGGLE_PREVIEW' }); break;
       }
     });
-  }, [dispatch, activeTab]);
+  }, [dispatch]);
 
-  // External file change
+  // External file change — registered once, reads tabs from ref
   useEffect(() => {
     const a = getAPI(); if (!a) return;
     return a.onExternalChange(({ filePath, event }) => {
-      const tab = state.tabs.find(t => t.filePath === filePath);
+      const tab = h.current.stateTabs.find(t => t.filePath === filePath);
       if (!tab) return;
       if (tab.isDirty) {
         dispatch({ type: 'SET_EXTERNAL_CHANGE', notification: { filePath, tabId: tab.id } });
@@ -104,7 +104,7 @@ function AppContent() {
         }).catch(() => {});
       }
     });
-  }, [state.tabs, dispatch]);
+  }, [dispatch]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -114,7 +114,7 @@ function AppContent() {
         case 'b': e.preventDefault(); dispatch({ type: 'TOGGLE_SIDEBAR' }); break;
         case '\\': e.preventDefault(); dispatch({ type: 'TOGGLE_PREVIEW' }); break;
         case 'n': e.preventDefault(); h.current.handleNewTab(); break;
-        case 's': if (e.shiftKey) { e.preventDefault(); h.current.handleSaveAs(); } break;
+        case 's': if (e.shiftKey) { e.preventDefault(); h.current.handleSaveAs(); } else { e.preventDefault(); h.current.handleSave(); } break;
       }
     };
     window.addEventListener('keydown', onKey);
@@ -183,8 +183,8 @@ function AppContent() {
         </div>
         <StatusBar
           wordCount={activeTab?.content ? activeTab.content.trim().split(/\s+/).filter(Boolean).length : 0}
-          cursorLine={state.cursorLine}
-          cursorCol={state.cursorCol}
+          cursorLine={activeTab?.cursorLine ?? 1}
+          cursorCol={activeTab?.cursorCol ?? 1}
           filePath={activeTab?.filePath}
           isDirty={activeTab?.isDirty ?? false}
         />

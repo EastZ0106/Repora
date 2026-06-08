@@ -1,4 +1,4 @@
-import { BrowserWindow, Menu, dialog } from 'electron';
+import { BrowserWindow, Menu, dialog, app } from 'electron';
 
 export function buildMenu(win: BrowserWindow): void {
   const template: Electron.MenuItemConstructorOptions[] = [
@@ -81,7 +81,7 @@ export function buildMenu(win: BrowserWindow): void {
             dialog.showMessageBox(win, {
               type: 'info',
               title: 'About Repora',
-              message: 'Repora v0.1.0',
+              message: `Repora v${app.getVersion()}`,
               detail: 'A clean, intuitive Markdown editor for Windows.'
             });
           }

@@ -1,9 +1,25 @@
 import { app, BrowserWindow, shell } from 'electron';
-import { join } from 'path';
+import { join, resolve } from 'path';
 import { registerIpcHandlers } from './ipc-handlers';
 import { buildMenu } from './menu';
 
 let mainWindow: BrowserWindow | null = null;
+let openFolderPath: string | null = null;
+
+export function getOpenFolderPath(): string | null {
+  return openFolderPath;
+}
+
+export function setOpenFolderPath(folder: string | null): void {
+  openFolderPath = folder;
+}
+
+export function isPathInScope(filePath: string): boolean {
+  if (!openFolderPath) return true; // no folder open — allow (file-open dialog provides its own gating)
+  const resolvedFile = resolve(filePath);
+  const resolvedFolder = resolve(openFolderPath);
+  return resolvedFile.startsWith(resolvedFolder + '\\') || resolvedFile === resolvedFolder;
+}
 
 function createWindow(): void {
   mainWindow = new BrowserWindow({

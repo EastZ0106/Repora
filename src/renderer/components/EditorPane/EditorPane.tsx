@@ -52,8 +52,9 @@ export function EditorPane({ tab, onContentChange, onCursorChange, onSave }: Pro
       ta.value = ta.value.substring(0, start) + '  ' + ta.value.substring(end);
       ta.selectionStart = ta.selectionEnd = start + 2;
       onContentChange(ta.value);
+      return;
     }
-    // Update cursor on arrow keys etc
+    // Update cursor on arrow keys and other non-input keys
     requestAnimationFrame(() => {
       const ta2 = e.currentTarget;
       const pos2 = ta2.selectionStart;

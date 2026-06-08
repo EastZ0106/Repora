@@ -13,6 +13,8 @@ export interface Tab {
   content: string;
   savedContent: string;
   isDirty: boolean;
+  cursorLine: number;
+  cursorCol: number;
 }
 
 export interface AppState {
@@ -23,8 +25,6 @@ export interface AppState {
   sidebarVisible: boolean;
   previewVisible: boolean;
   wordCount: number;
-  cursorLine: number;
-  cursorCol: number;
   externalChangeNotification: { filePath: string; tabId: string } | null;
 }
 
@@ -53,7 +53,7 @@ export interface ReporaAPI {
   startWatching(dirPath: string): Promise<void>;
   stopWatching(): Promise<void>;
   openDroppedFile(filePath: string): Promise<{ content: string } | null>;
-  getPathForFile(file: File): string;
+  getPathForFile(file: File): string | null;
   onExternalChange(callback: (event: { filePath: string; event: string }) => void): () => void;
   onMenuAction(callback: (action: string) => void): () => void;
 }

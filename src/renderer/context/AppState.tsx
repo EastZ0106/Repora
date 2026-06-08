@@ -13,8 +13,6 @@ const initialState: AppState = {
   sidebarVisible: true,
   previewVisible: true,
   wordCount: 0,
-  cursorLine: 1,
-  cursorCol: 1,
   externalChangeNotification: null
 };
 
@@ -30,9 +28,11 @@ function reducer(state: AppState, action: AppAction): AppState {
       return { ...state, fileTree: action.tree };
 
     case 'OPEN_FILE': {
-      const existing = state.tabs.find(t => t.filePath === action.tab.filePath);
-      if (existing) {
-        return { ...state, activeTabId: existing.id };
+      if (action.tab.filePath !== null) {
+        const existing = state.tabs.find(t => t.filePath === action.tab.filePath);
+        if (existing) {
+          return { ...state, activeTabId: existing.id };
+        }
       }
       return {
         ...state,
@@ -82,7 +82,14 @@ function reducer(state: AppState, action: AppAction): AppState {
     }
 
     case 'UPDATE_CURSOR':
-      return { ...state, cursorLine: action.line, cursorCol: action.col };
+      return {
+        ...state,
+        tabs: state.tabs.map(t =>
+          t.id === action.tabId
+            ? { ...t, cursorLine: action.line, cursorCol: action.col }
+            : t
+        )
+      };
 
     case 'TOGGLE_SIDEBAR':
       return { ...state, sidebarVisible: !state.sidebarVisible };
@@ -129,7 +136,9 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       title,
       content,
       savedContent: content,
-      isDirty: false
+      isDirty: false,
+      cursorLine: 1,
+      cursorCol: 1
     };
   }, [state.tabs.length]);
 

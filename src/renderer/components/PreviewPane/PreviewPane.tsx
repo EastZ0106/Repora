@@ -15,10 +15,10 @@ const md = new MarkdownIt({
       try {
         return hljs.highlight(code, { language: lang }).value;
       } catch {
-        return '';
+        return md.utils.escapeHtml(code);
       }
     }
-    return '';
+    return md.utils.escapeHtml(code);
   }
 });
 
