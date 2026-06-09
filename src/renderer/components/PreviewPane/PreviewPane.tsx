@@ -27,16 +27,18 @@ md.use(mk, { throwOnError: false, errorColor: '#cc0000' });
 
 interface PreviewPaneProps {
   content: string;
+  emptyText?: string;
+  emptyHint?: string;
 }
 
-export function PreviewPane({ content }: PreviewPaneProps) {
+export function PreviewPane({ content, emptyText, emptyHint }: PreviewPaneProps) {
   const html = useMemo(() => {
     if (!content) return '';
     try {
       return md.render(content);
     } catch (err) {
       console.error('[Repora] Markdown render error:', err);
-      return '<p style="color:#e0555a">Markdown rendering error</p>';
+      return '<p style="color:var(--color-error)">Markdown rendering error</p>';
     }
   }, [content]);
 
@@ -44,8 +46,8 @@ export function PreviewPane({ content }: PreviewPaneProps) {
     return (
       <div className="preview-pane">
         <div className="preview-empty">
-          <p>Nothing to preview</p>
-          <p className="preview-empty-hint">Start typing in the editor</p>
+          <p>{emptyText || 'Nothing to preview'}</p>
+          <p className="preview-empty-hint">{emptyHint || 'Start typing in the editor'}</p>
         </div>
       </div>
     );

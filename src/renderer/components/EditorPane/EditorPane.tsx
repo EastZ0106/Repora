@@ -7,9 +7,10 @@ interface Props {
   onContentChange: (content: string) => void;
   onCursorChange: (line: number, col: number) => void;
   onSave: () => void;
+  placeholder?: string;
 }
 
-export function EditorPane({ tab, onContentChange, onCursorChange, onSave }: Props) {
+export function EditorPane({ tab, onContentChange, onCursorChange, onSave, placeholder }: Props) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const tabIdRef = useRef<string | null>(null);
   const suppressRef = useRef(false);
@@ -79,7 +80,7 @@ export function EditorPane({ tab, onContentChange, onCursorChange, onSave }: Pro
         onChange={handleChange}
         onKeyDown={handleKeyDown}
         onClick={handleClick}
-        placeholder="Start writing Markdown..."
+        placeholder={placeholder || "Start writing Markdown..."}
         defaultValue=""
       />
     </div>

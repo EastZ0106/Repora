@@ -20,14 +20,14 @@
   font-family: "Cascadia Code","Fira Code","JetBrains Mono",Consolas,"Courier New",monospace;
   font-size: 15px;
   line-height: 1.7;
-  color: #1E1E1E;
-  background: #FAFAF0;
+  color: var(--text-primary);
+  background: var(--bg-editor);
   tab-size: 2;
   box-sizing: border-box;
 }
 
 .editor-textarea::placeholder {
-  color: #9B9590;
+  color: var(--text-muted);
 }
 
 .editor-textarea:focus {

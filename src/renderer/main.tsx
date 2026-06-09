@@ -14,10 +14,10 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { err
   render() {
     if (this.state.error) {
       return (
-        <div style={{padding:40,fontFamily:'monospace',color:'#e0555a',background:'#FAFAF0',height:'100%'}}>
+        <div style={{padding:40,fontFamily:'monospace',color:'var(--color-error)',background:'var(--bg-app)',height:'100%'}}>
           <h1>Render Error</h1>
           <pre style={{whiteSpace:'pre-wrap',fontSize:14,marginTop:16}}>{this.state.error.message}</pre>
-          <pre style={{whiteSpace:'pre-wrap',fontSize:12,color:'#6B6560',marginTop:16}}>{this.state.error.stack}</pre>
+          <pre style={{whiteSpace:'pre-wrap',fontSize:12,color:'var(--text-secondary)',marginTop:16}}>{this.state.error.stack}</pre>
         </div>
       );
     }

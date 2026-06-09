@@ -48,7 +48,7 @@
 
 .sidebar-open-btn:hover {
   background: var(--accent);
-  color: #fff;
+  color: var(--text-on-accent);
 }
 
 .sidebar-tree {

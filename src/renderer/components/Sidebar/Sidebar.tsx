@@ -7,6 +7,7 @@ interface SidebarProps {
   openFolder: string | null;
   onOpenFolder: () => void;
   onFileClick: (filePath: string) => void;
+  ts: (path: string) => string;
 }
 
 function TreeNodeItem({ node, depth, onFileClick }: { node: TreeNode; depth: number; onFileClick: (path: string) => void }) {
@@ -48,7 +49,7 @@ function TreeNodeItem({ node, depth, onFileClick }: { node: TreeNode; depth: num
 }
 
 export const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(
-  function Sidebar({ tree, openFolder, onOpenFolder, onFileClick }, ref) {
+  function Sidebar({ tree, openFolder, onOpenFolder, onFileClick, ts }, ref) {
     return (
       <div className="sidebar" ref={ref}>
         <div className="sidebar-header">
@@ -57,10 +58,10 @@ export const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(
               {openFolder.split(/[/\\]/).pop() || openFolder}
             </div>
           ) : (
-            <div className="sidebar-placeholder">No folder open</div>
+            <div className="sidebar-placeholder">{ts('sidebar.files')}</div>
           )}
           <button className="sidebar-open-btn" onClick={onOpenFolder} title="Open Folder">
-            Open Folder
+            {ts('sidebar.openFolder')}
           </button>
         </div>
         <div className="sidebar-tree">

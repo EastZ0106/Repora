@@ -5,6 +5,9 @@ import { buildMenu } from './menu';
 
 let mainWindow: BrowserWindow | null = null;
 let openFolderPath: string | null = null;
+let currentLocale = 'zh-CN';
+let currentTheme: 'light' | 'dark' = 'light';
+let currentAutoSave = true;
 
 export function getOpenFolderPath(): string | null {
   return openFolderPath;
@@ -15,10 +18,32 @@ export function setOpenFolderPath(folder: string | null): void {
 }
 
 export function isPathInScope(filePath: string): boolean {
-  if (!openFolderPath) return true; // no folder open — allow (file-open dialog provides its own gating)
+  if (!openFolderPath) return true;
   const resolvedFile = resolve(filePath);
   const resolvedFolder = resolve(openFolderPath);
   return resolvedFile.startsWith(resolvedFolder + '\\') || resolvedFile === resolvedFolder;
+}
+
+export function setLocale(locale: string): void {
+  currentLocale = locale;
+  if (mainWindow) buildMenu(mainWindow, currentLocale, currentTheme === 'dark', currentAutoSave);
+}
+
+export function setTheme(theme: 'light' | 'dark'): void {
+  currentTheme = theme;
+  if (mainWindow) {
+    mainWindow.setBackgroundColor(theme === 'dark' ? '#1E1E24' : '#FAFAF0');
+    buildMenu(mainWindow, currentLocale, theme === 'dark', currentAutoSave);
+  }
+}
+
+export function setAutoSave(enabled: boolean): void {
+  currentAutoSave = enabled;
+  if (mainWindow) buildMenu(mainWindow, currentLocale, currentTheme === 'dark', currentAutoSave);
+}
+
+export function getCurrentTheme(): 'light' | 'dark' {
+  return currentTheme;
 }
 
 function createWindow(): void {
@@ -42,6 +67,12 @@ function createWindow(): void {
     mainWindow?.show();
   });
 
+  // Intercept close to check unsaved changes
+  mainWindow.on('close', (e) => {
+    e.preventDefault();
+    mainWindow?.webContents.send('app:beforeClose');
+  });
+
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url);
     return { action: 'deny' };
@@ -53,7 +84,7 @@ function createWindow(): void {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'));
   }
 
-  buildMenu(mainWindow);
+  buildMenu(mainWindow, currentLocale, currentTheme === 'dark', currentAutoSave);
 }
 
 app.whenReady().then(() => {

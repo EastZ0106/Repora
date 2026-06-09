@@ -17,6 +17,9 @@ export interface Tab {
   cursorCol: number;
 }
 
+export type Locale = 'zh-CN' | 'en' | 'ja';
+export type Theme = 'light' | 'dark';
+
 export interface AppState {
   openFolder: string | null;
   fileTree: TreeNode[];
@@ -25,6 +28,9 @@ export interface AppState {
   sidebarVisible: boolean;
   previewVisible: boolean;
   wordCount: number;
+  locale: Locale;
+  theme: Theme;
+  autoSaveEnabled: boolean;
   externalChangeNotification: { filePath: string; tabId: string } | null;
 }
 
@@ -40,6 +46,9 @@ export type AppAction =
   | { type: 'UPDATE_CURSOR'; tabId: string; line: number; col: number }
   | { type: 'TOGGLE_SIDEBAR' }
   | { type: 'TOGGLE_PREVIEW' }
+  | { type: 'SET_LOCALE'; locale: Locale }
+  | { type: 'SET_THEME'; theme: Theme }
+  | { type: 'SET_AUTO_SAVE'; enabled: boolean }
   | { type: 'SET_EXTERNAL_CHANGE'; notification: { filePath: string; tabId: string } | null }
   | { type: 'RELOAD_TAB_CONTENT'; tabId: string; content: string };
 

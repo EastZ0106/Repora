@@ -1,7 +1,7 @@
-import { ipcMain, dialog, BrowserWindow } from 'electron';
+import { ipcMain, dialog, BrowserWindow, app } from 'electron';
 import { readFile, writeFile, readDirectoryTree } from './file-system';
 import { markRecentlySaved, startWatching, stopWatching } from './file-watcher';
-import { isPathInScope } from './index';
+import { isPathInScope, setLocale, setTheme, setAutoSave } from './index';
 
 export function registerIpcHandlers(): void {
   ipcMain.handle('dialog:openFile', async () => {
@@ -51,6 +51,56 @@ export function registerIpcHandlers(): void {
     const { setOpenFolderPath } = require('./index');
     setOpenFolderPath(result.filePaths[0]);
     return { folderPath: result.filePaths[0] };
+  });
+
+  ipcMain.handle('dialog:confirmClose', async (_event, fileName: string) => {
+    const win = BrowserWindow.getFocusedWindow();
+    if (!win) return 'discard';
+    const result = await dialog.showMessageBox(win, {
+      type: 'warning',
+      title: 'Unsaved Changes',
+      message: `"${fileName}" has unsaved changes.`,
+      detail: 'Do you want to save before closing?',
+      buttons: ['Save', 'Discard', 'Cancel'],
+      defaultId: 0,
+      cancelId: 2,
+    });
+    if (result.response === 0) return 'save';
+    if (result.response === 1) return 'discard';
+    return 'cancel';
+  });
+
+  // Theme / locale / auto-save push from renderer
+  ipcMain.on('app:setTheme', (_event, theme: string) => {
+    setTheme(theme as 'light' | 'dark');
+  });
+
+  // Locale & menu state updates
+  ipcMain.on('menu:setLocale', (_event, locale: string) => {
+    setLocale(locale);
+  });
+
+  ipcMain.on('menu:toggleDarkMode', () => {
+    const { getCurrentTheme } = require('./index');
+    const next = getCurrentTheme() === 'dark' ? 'light' : 'dark';
+    setTheme(next);
+  });
+
+  ipcMain.on('menu:toggleAutoSave', () => {
+    const { default: mod } = { default: { currentAutoSave: true } };
+    // auto-save state is managed in renderer; menu rebuild via setAutoSave
+  });
+
+  // Close response
+  ipcMain.on('app:closeResponse', (_event, action: string) => {
+    const win = BrowserWindow.getFocusedWindow();
+    if (!win) return;
+    if (action === 'close') {
+      win.destroy();
+      if (BrowserWindow.getAllWindows().length === 0) {
+        app.quit();
+      }
+    }
   });
 
   ipcMain.handle('file:readFile', async (_event, filePath: string) => {

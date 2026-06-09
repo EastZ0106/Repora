@@ -17,6 +17,7 @@
   --text-secondary: #6B6560;
   --text-muted: #9B9590;
   --text-link: #5B8DEF;
+  --text-on-accent: #FFFFFF;
   --accent: #5B8DEF;
   --accent-hover: #4A7CDE;
   --accent-subtle: #E8EEF8;
@@ -26,6 +27,42 @@
   --color-error: #E0555A;
   --scrollbar-thumb: #C8C3B8;
   --scrollbar-track: transparent;
+  --shadow-overlay: rgba(0,0,0,0.12);
+  --bg-drop-overlay: rgba(91,141,239,0.12);
+}
+
+/* Dark mode */
+[data-theme="dark"] {
+  --bg-app: #1E1E24;
+  --bg-sidebar: #252530;
+  --bg-editor: #1E1E24;
+  --bg-preview: #22222A;
+  --bg-tab-active: #1E1E24;
+  --bg-tab-inactive: #2A2A35;
+  --bg-tab-hover: #30303C;
+  --bg-input: #2A2A35;
+  --bg-code-block: #2A2A35;
+  --bg-statusbar: #252530;
+  --bg-hover: #30303C;
+  --border-default: #3A3A48;
+  --border-subtle: #2E2E3A;
+  --border-focus: #6B9FFF;
+  --text-primary: #E0E0E0;
+  --text-secondary: #A0A0B0;
+  --text-muted: #6A6A7A;
+  --text-link: #6B9FFF;
+  --text-on-accent: #FFFFFF;
+  --accent: #6B9FFF;
+  --accent-hover: #5A8EED;
+  --accent-subtle: #1E2A40;
+  --dirty-indicator: #6B9FFF;
+  --color-success: #4CAF50;
+  --color-warning: #D4A853;
+  --color-error: #E0555A;
+  --scrollbar-thumb: #3A3A48;
+  --scrollbar-track: transparent;
+  --shadow-overlay: rgba(0,0,0,0.3);
+  --bg-drop-overlay: rgba(107,159,255,0.15);
 }
 
 *, *::before, *::after {

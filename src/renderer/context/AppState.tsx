@@ -1,8 +1,23 @@
 import React, { createContext, useContext, useReducer, useCallback } from 'react';
-import type { AppState, AppAction, Tab, TreeNode } from '../types';
+import type { AppState, AppAction, Tab, Locale, Theme } from '../types';
+import { t } from '../i18n';
 
 function generateId(): string {
   return Math.random().toString(36).substring(2, 10);
+}
+
+function loadStored<T>(key: string, fallback: T): T {
+  try {
+    const raw = localStorage.getItem(`repora.${key}`);
+    if (raw) return JSON.parse(raw) as T;
+  } catch { /* ignore */ }
+  return fallback;
+}
+
+function storeValue(key: string, value: unknown): void {
+  try {
+    localStorage.setItem(`repora.${key}`, JSON.stringify(value));
+  } catch { /* ignore */ }
 }
 
 const initialState: AppState = {
@@ -13,6 +28,9 @@ const initialState: AppState = {
   sidebarVisible: true,
   previewVisible: true,
   wordCount: 0,
+  locale: loadStored<Locale>('locale', 'zh-CN'),
+  theme: loadStored<Theme>('theme', 'light'),
+  autoSaveEnabled: loadStored<boolean>('autoSave', true),
   externalChangeNotification: null
 };
 
@@ -97,6 +115,21 @@ function reducer(state: AppState, action: AppAction): AppState {
     case 'TOGGLE_PREVIEW':
       return { ...state, previewVisible: !state.previewVisible };
 
+    case 'SET_LOCALE': {
+      storeValue('locale', action.locale);
+      return { ...state, locale: action.locale };
+    }
+
+    case 'SET_THEME': {
+      storeValue('theme', action.theme);
+      return { ...state, theme: action.theme };
+    }
+
+    case 'SET_AUTO_SAVE': {
+      storeValue('autoSave', action.enabled);
+      return { ...state, autoSaveEnabled: action.enabled };
+    }
+
     case 'SET_EXTERNAL_CHANGE':
       return { ...state, externalChangeNotification: action.notification };
 
@@ -119,6 +152,7 @@ interface AppContextValue {
   state: AppState;
   dispatch: React.Dispatch<AppAction>;
   createTab: (filePath?: string | null, content?: string) => Tab;
+  ts: (path: string) => string;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -126,9 +160,11 @@ const AppContext = createContext<AppContextValue | null>(null);
 export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState);
 
+  const ts = useCallback((path: string) => t(state.locale, path), [state.locale]);
+
   const createTab = useCallback((filePath: string | null = null, content: string = ''): Tab => {
     const title = filePath
-      ? filePath.split(/[/\\]/).pop() || 'Untitled'
+      ? filePath.split(/[/\\]/).pop() || t(state.locale, 'welcome.newFile')
       : `Untitled-${state.tabs.filter(t => !t.filePath).length + 1}`;
     return {
       id: generateId(),
@@ -140,10 +176,10 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       cursorLine: 1,
       cursorCol: 1
     };
-  }, [state.tabs.length]);
+  }, [state.tabs.length, state.locale]);
 
   return (
-    <AppContext.Provider value={{ state, dispatch, createTab }}>
+    <AppContext.Provider value={{ state, dispatch, createTab, ts }}>
       {children}
     </AppContext.Provider>
   );
