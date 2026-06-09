@@ -122,7 +122,7 @@ function AppContent() {
       clearTimeout(timer);
       autoSaveTimers.current.delete(key);
     };
-  }, [activeTab?.id, activeTab?.content, state.autoSaveEnabled]);
+  }, [activeTab?.id, activeTab?.content, activeTab?.filePath, state.autoSaveEnabled]);
 
   // Stable refs for menu & keyboard shortcuts
   const h = useRef({ handleNewTab, handleOpenFile, handleOpenFolder, handleSave, handleSaveAs, activeTab, stateTabs: state.tabs, handleCloseTab, state });
